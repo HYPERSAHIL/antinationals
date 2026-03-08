@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      game_history: {
+        Row: {
+          bet_amount: number
+          created_at: string
+          game_type: string
+          id: string
+          payout: number
+          period_id: number | null
+          prediction_color: string | null
+          prediction_number: number | null
+          result_color: string | null
+          result_number: number | null
+          user_id: string
+        }
+        Insert: {
+          bet_amount: number
+          created_at?: string
+          game_type: string
+          id?: string
+          payout?: number
+          period_id?: number | null
+          prediction_color?: string | null
+          prediction_number?: number | null
+          result_color?: string | null
+          result_number?: number | null
+          user_id: string
+        }
+        Update: {
+          bet_amount?: number
+          created_at?: string
+          game_type?: string
+          id?: string
+          payout?: number
+          period_id?: number | null
+          prediction_color?: string | null
+          prediction_number?: number | null
+          result_color?: string | null
+          result_number?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          wallet_balance: number
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+          wallet_balance?: number
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          wallet_balance?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
