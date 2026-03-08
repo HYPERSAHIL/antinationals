@@ -34,6 +34,7 @@ const App = () => (
             <Route path="/wallet" element={<WalletPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
