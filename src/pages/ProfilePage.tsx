@@ -1,11 +1,21 @@
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { LogOut, Shield } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 const ProfilePage = () => {
   const { user, wallet, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }).then(({ data }) => {
+      if (data) setIsAdmin(true);
+    });
+  }, [user]);
 
   if (!user) {
     navigate('/auth');
@@ -25,6 +35,14 @@ const ProfilePage = () => {
           <p className="text-sm text-muted-foreground">{user.email}</p>
           <p className="mt-2 font-display text-2xl font-black text-gold">₹{wallet.toFixed(0)}</p>
         </div>
+
+        {isAdmin && (
+          <Link to="/admin">
+            <Button variant="gold" className="w-full">
+              <Shield className="mr-2 h-4 w-4" /> Admin Dashboard
+            </Button>
+          </Link>
+        )}
 
         <Button
           variant="destructive"
