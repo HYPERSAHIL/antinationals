@@ -1,24 +1,20 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { SEO } from "@/components/site/SEO";
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
-      </div>
+const NotFound = () => (
+  <>
+    <SEO title="Not found" description="Page not found." path="/404" />
+    <div className="container-editorial py-32 max-w-2xl text-center">
+      <p className="kicker">Error 404</p>
+      <h1 className="mt-4 font-serif text-6xl font-semibold text-foreground">Not on file.</h1>
+      <p className="mt-4 text-muted-foreground">
+        The record you requested is not in the archive. It may have been unpublished or the address is mistyped.
+      </p>
+      <Link to="/" className="mt-8 inline-block border border-foreground bg-foreground px-6 py-2.5 text-sm text-background hover:bg-transparent hover:text-foreground transition-colors">
+        Return home
+      </Link>
     </div>
-  );
-};
+  </>
+);
 
 export default NotFound;

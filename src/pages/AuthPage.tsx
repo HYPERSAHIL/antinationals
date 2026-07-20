@@ -1,93 +1,69 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { SEO } from "@/components/site/SEO";
+import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
-  const navigate = useNavigate();
+  const nav = useNavigate();
+  const { user } = useAuth();
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) nav("/admin", { replace: true });
+  }, [user, nav]);
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      if (isLogin) {
-        await signIn(email, password);
-        toast.success('Welcome back!');
-      } else {
-        await signUp(email, password, name);
-        toast.success('Account created! Check email to verify.');
-      }
-      navigate('/');
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
+    setBusy(true);
+    if (mode === "sign-in") {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) toast.error(error.message);
+      else nav("/admin");
+    } else {
+      const { error } = await supabase.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: `${window.location.origin}/admin` },
+      });
+      if (error) toast.error(error.message);
+      else toast.success("Account created. Check email if confirmation is enabled.");
     }
+    setBusy(false);
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4 pb-20">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="font-display text-3xl font-bold text-primary text-glow-green">
-            COLOR<span className="text-foreground">PLAY</span>
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {isLogin ? 'Sign in to your account' : 'Create a new account'}
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-card p-6">
-          {!isLogin && (
-            <Input
-              placeholder="Display Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required={!isLogin}
-              className="bg-secondary border-border"
-            />
-          )}
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="bg-secondary border-border"
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="bg-secondary border-border"
-          />
-          <Button type="submit" className="w-full" variant="green" disabled={loading}>
-            {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-muted-foreground">
-          {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="font-semibold text-primary hover:underline"
-          >
-            {isLogin ? 'Sign Up' : 'Sign In'}
+    <>
+      <SEO title="Sign in" description="Editorial access." path="/auth" />
+      <div className="container-editorial py-24 max-w-md">
+        <p className="kicker">Editorial access</p>
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-foreground">
+          {mode === "sign-in" ? "Sign in" : "Create account"}
+        </h1>
+        <form onSubmit={submit} className="mt-8 space-y-5">
+          <div>
+            <label className="kicker">Email</label>
+            <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none" />
+          </div>
+          <div>
+            <label className="kicker">Password</label>
+            <input required type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)}
+              className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none" />
+          </div>
+          <button disabled={busy} className="w-full border border-foreground bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:bg-transparent hover:text-foreground transition-colors disabled:opacity-50">
+            {busy ? "Working…" : mode === "sign-in" ? "Sign in" : "Create account"}
           </button>
-        </p>
+        </form>
+        <button onClick={() => setMode(mode === "sign-in" ? "sign-up" : "sign-in")}
+          className="mt-6 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground">
+          {mode === "sign-in" ? "Need an account? Create one" : "Already have an account? Sign in"}
+        </button>
       </div>
-    </div>
+    </>
   );
 };
 
