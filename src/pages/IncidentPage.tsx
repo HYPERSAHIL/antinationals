@@ -5,7 +5,7 @@ import { SEO } from "@/components/site/SEO";
 import { VerificationBadge } from "@/components/archive/StatusBadge";
 import { LegalNote } from "@/components/archive/LegalNote";
 import { formatDate, locationLine } from "@/lib/format";
-import { ExternalLink, FileText } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import NotFound from "./NotFound";
 
 const IncidentPage = () => {
@@ -13,21 +13,24 @@ const IncidentPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["incident", slug],
     queryFn: async () => {
-      const { data: incident } = await supabase
-        .from("incidents")
-        .select("*")
-        .eq("slug", slug!)
-        .eq("status", "published")
-        .maybeSingle();
+      const { data: incident } = await (supabase as any)
+        .from("incidents").select("*").eq("slug", slug!).eq("published", true).maybeSingle();
       if (!incident) return null;
       const [{ data: subjects }, { data: evidence }, { data: sources }, { data: replies }, { data: corrections }] = await Promise.all([
-        supabase.from("incident_subjects").select("role, subject:subjects(id, slug, display_name, identity_status)").eq("incident_id", incident.id),
-        supabase.from("evidence").select("*").eq("incident_id", incident.id).eq("status", "published").order("captured_at", { nullsFirst: false }),
-        supabase.from("sources").select("*").eq("incident_id", incident.id).order("published_at", { nullsFirst: false }),
-        supabase.from("replies").select("*").eq("incident_id", incident.id).eq("status", "published").order("created_at"),
-        supabase.from("corrections").select("*").eq("incident_id", incident.id).eq("status", "published").order("created_at", { ascending: false }),
+        (supabase as any).from("subject_incidents").select("relation_note, subject:subjects(id, slug, display_name, identity_status, role, organization)").eq("incident_id", incident.id),
+        (supabase as any).from("evidence").select("*").eq("incident_id", incident.id).eq("published", true).order("capture_time", { nullsFirst: false }),
+        (supabase as any).from("sources").select("*").eq("incident_id", incident.id).order("publication_date", { nullsFirst: false }),
+        (supabase as any).from("replies").select("*").eq("incident_id", incident.id).eq("published", true).order("created_at"),
+        (supabase as any).from("corrections").select("*").eq("related_incident_id", incident.id).eq("published", true).order("created_at", { ascending: false }),
       ]);
-      return { incident, subjects: subjects ?? [], evidence: evidence ?? [], sources: sources ?? [], replies: replies ?? [], corrections: corrections ?? [] };
+      return {
+        incident,
+        subjects: (subjects ?? []) as any[],
+        evidence: (evidence ?? []) as any[],
+        sources: (sources ?? []) as any[],
+        replies: (replies ?? []) as any[],
+        corrections: (corrections ?? []) as any[],
+      };
     },
     enabled: !!slug,
   });
@@ -50,26 +53,15 @@ const IncidentPage = () => {
         <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 rule-top rule-bottom py-4">
           <VerificationBadge status={incident.verification_status} />
           <span className="text-xs text-muted-foreground">
-            <span className="kicker mr-1">Occurred</span> {formatDate(incident.occurred_at)}
+            <span className="kicker mr-1">Occurred</span> {formatDate(incident.incident_date)}
           </span>
           <span className="text-xs text-muted-foreground">
-            <span className="kicker mr-1">Location</span> {locationLine([incident.city, incident.region, incident.country])}
+            <span className="kicker mr-1">Location</span> {locationLine([incident.location_description, incident.city, incident.state, incident.country])}
           </span>
-          {incident.published_at && (
-            <span className="text-xs text-muted-foreground">
-              <span className="kicker mr-1">Published</span> {formatDate(incident.published_at)}
-            </span>
-          )}
         </div>
 
         {incident.summary && (
           <p className="mt-8 font-serif text-2xl leading-snug text-foreground">{incident.summary}</p>
-        )}
-
-        {incident.body && (
-          <div className="prose prose-invert prose-lg mt-10 max-w-none prose-p:text-foreground prose-p:leading-relaxed prose-headings:font-serif whitespace-pre-wrap">
-            {incident.body}
-          </div>
         )}
 
         {subjects.length > 0 && (
@@ -78,10 +70,15 @@ const IncidentPage = () => {
             <ul className="mt-4 divide-y divide-rule">
               {subjects.map((s: any) => s.subject && (
                 <li key={s.subject.id} className="py-3 flex items-center justify-between gap-3">
-                  <Link to={`/person/${s.subject.slug}`} className="font-serif text-lg text-foreground hover:text-accent">
-                    {s.subject.display_name}
-                  </Link>
-                  <span className="text-xs text-muted-foreground uppercase font-mono tracking-widest">{s.role || "subject"}</span>
+                  <div>
+                    <Link to={`/person/${s.subject.slug}`} className="font-serif text-lg text-foreground hover:text-accent">
+                      {s.subject.display_name || "Unidentified subject"}
+                    </Link>
+                    {(s.subject.role || s.subject.organization) && (
+                      <p className="text-xs text-muted-foreground">{[s.subject.role, s.subject.organization].filter(Boolean).join(" · ")}</p>
+                    )}
+                  </div>
+                  {s.relation_note && <span className="text-xs text-muted-foreground uppercase font-mono tracking-widest">{s.relation_note}</span>}
                 </li>
               ))}
             </ul>
@@ -101,10 +98,15 @@ const IncidentPage = () => {
                   <p className="mt-3 font-serif text-lg text-foreground">{e.title || "Untitled evidence"}</p>
                   {e.caption && <p className="mt-2 text-sm text-muted-foreground">{e.caption}</p>}
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    {e.captured_at && <><dt className="kicker">Captured</dt><dd>{formatDate(e.captured_at)}</dd></>}
-                    {e.captured_by && <><dt className="kicker">By</dt><dd>{e.captured_by}</dd></>}
+                    {e.capture_time && <><dt className="kicker">Captured</dt><dd>{formatDate(e.capture_time)}</dd></>}
+                    {e.attribution && <><dt className="kicker">By</dt><dd>{e.attribution}</dd></>}
                     {e.sha256 && <><dt className="kicker">SHA-256</dt><dd className="font-mono truncate" title={e.sha256}>{e.sha256.slice(0, 16)}…</dd></>}
                   </dl>
+                  {e.source_url && (
+                    <a href={e.source_url} target="_blank" rel="noreferrer noopener" className="mt-3 inline-flex items-center gap-1 text-xs text-accent underline underline-offset-2">
+                      Source <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -117,9 +119,10 @@ const IncidentPage = () => {
             <ol className="mt-6 space-y-4 list-decimal list-inside marker:text-muted-foreground marker:font-mono marker:text-xs">
               {sources.map((s: any) => (
                 <li key={s.id} className="text-sm">
-                  <span className="font-serif text-base text-foreground">{s.title}</span>
+                  <span className="font-serif text-base text-foreground">{s.title || s.url || "Source"}</span>
                   {s.publisher && <span className="text-muted-foreground"> · {s.publisher}</span>}
-                  {s.published_at && <span className="text-muted-foreground"> · {formatDate(s.published_at)}</span>}
+                  {s.publication_date && <span className="text-muted-foreground"> · {formatDate(s.publication_date)}</span>}
+                  {s.source_type && <span className="ml-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{s.source_type.replace(/_/g, " ")}</span>}
                   {s.url && (
                     <a href={s.url} target="_blank" rel="noreferrer noopener" className="ml-2 inline-flex items-center gap-1 text-accent underline underline-offset-2">
                       Link <ExternalLink className="h-3 w-3" />
@@ -136,8 +139,12 @@ const IncidentPage = () => {
             <h2 className="rule-bottom pb-3 font-serif text-2xl font-semibold text-foreground">Right of reply</h2>
             {replies.map((r: any) => (
               <blockquote key={r.id} className="mt-6 border-l-2 border-accent bg-secondary/30 p-5">
-                <p className="font-serif text-lg italic text-foreground">"{r.body}"</p>
-                <footer className="mt-3 text-xs text-muted-foreground">— {r.author_name || "Response received"}, {formatDate(r.created_at)}</footer>
+                <p className="font-serif text-lg italic text-foreground">"{r.response_text}"</p>
+                <footer className="mt-3 text-xs text-muted-foreground">
+                  — {r.submitter_name}
+                  {r.submitter_role && `, ${r.submitter_role}`}
+                  {` · ${formatDate(r.created_at)}`}
+                </footer>
               </blockquote>
             ))}
           </section>
@@ -149,8 +156,8 @@ const IncidentPage = () => {
             <ul className="mt-4 divide-y divide-rule">
               {corrections.map((c: any) => (
                 <li key={c.id} className="py-4">
-                  <p className="kicker">{formatDate(c.created_at)}</p>
-                  <p className="mt-1 text-sm text-foreground">{c.description}</p>
+                  <p className="kicker">{formatDate(c.created_at)} · {c.correction_type}</p>
+                  <p className="mt-1 text-sm text-foreground">{c.public_summary || c.message}</p>
                 </li>
               ))}
             </ul>

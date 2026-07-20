@@ -17,10 +17,10 @@ const SearchPage = () => {
     queryFn: async () => {
       if (!q) return { subjects: [], incidents: [] };
       const [{ data: subjects }, { data: incidents }] = await Promise.all([
-        supabase.from("subjects").select("id, slug, display_name, city, region, country, identity_status").eq("status", "published").ilike("display_name", `%${q}%`).limit(30),
-        supabase.from("incidents").select("id, slug, title, summary, occurred_at, city, region, country, verification_status").eq("status", "published").or(`title.ilike.%${q}%,summary.ilike.%${q}%`).limit(50),
+        (supabase as any).from("subjects").select("id, slug, display_name, organization, identity_status").eq("published", true).ilike("display_name", `%${q}%`).limit(30),
+        (supabase as any).from("incidents").select("id, slug, title, summary, incident_date, city, state, country, verification_status").eq("published", true).or(`title.ilike.%${q}%,summary.ilike.%${q}%`).limit(50),
       ]);
-      return { subjects: subjects ?? [], incidents: incidents ?? [] };
+      return { subjects: (subjects ?? []) as any[], incidents: (incidents ?? []) as any[] };
     },
     enabled: !!q,
   });
@@ -41,13 +41,8 @@ const SearchPage = () => {
 
         <form onSubmit={submit} className="mt-8 flex items-center gap-3 border-b border-rule pb-3 max-w-2xl">
           <Search className="h-5 w-5 text-muted-foreground" />
-          <input
-            autoFocus
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Search subjects, incidents…"
-            className="flex-1 bg-transparent text-lg focus:outline-none"
-          />
+          <input autoFocus value={input} onChange={(e) => setInput(e.target.value)} placeholder="Search subjects, incidents…"
+            className="flex-1 bg-transparent text-lg focus:outline-none" />
         </form>
 
         {q && (
@@ -57,13 +52,13 @@ const SearchPage = () => {
               {isLoading ? <p className="text-sm text-muted-foreground">Searching…</p> :
                 data?.subjects.length === 0 ? <p className="text-sm text-muted-foreground">No subjects match.</p> :
                 <ul className="divide-y divide-rule border-t border-b border-rule">
-                  {data?.subjects.map((s: any) => (
+                  {data?.subjects.map((s) => (
                     <li key={s.id}>
                       <Link to={`/person/${s.slug}`} className="group block py-4 hover:bg-secondary/30 -mx-2 px-2">
-                        <p className="font-serif text-lg text-foreground group-hover:text-accent">{s.display_name}</p>
+                        <p className="font-serif text-lg text-foreground group-hover:text-accent">{s.display_name || "Unidentified subject"}</p>
                         <div className="mt-1 flex items-center gap-3">
                           <IdentityBadge status={s.identity_status} />
-                          <span className="text-xs text-muted-foreground">{locationLine([s.city, s.region, s.country])}</span>
+                          {s.organization && <span className="text-xs text-muted-foreground">{s.organization}</span>}
                         </div>
                       </Link>
                     </li>
@@ -77,10 +72,10 @@ const SearchPage = () => {
               {isLoading ? <p className="text-sm text-muted-foreground">Searching…</p> :
                 data?.incidents.length === 0 ? <p className="text-sm text-muted-foreground">No incidents match.</p> :
                 <ul className="divide-y divide-rule border-t border-b border-rule">
-                  {data?.incidents.map((i: any) => (
+                  {data?.incidents.map((i) => (
                     <li key={i.id}>
                       <Link to={`/incident/${i.slug}`} className="group block py-4 hover:bg-secondary/30 -mx-2 px-2">
-                        <time className="kicker">{formatDateShort(i.occurred_at)}</time>
+                        <time className="kicker">{formatDateShort(i.incident_date)}</time>
                         <p className="mt-1 font-serif text-lg text-foreground group-hover:text-accent">{i.title}</p>
                         {i.summary && <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{i.summary}</p>}
                         <div className="mt-2"><VerificationBadge status={i.verification_status} /></div>

@@ -12,21 +12,17 @@ const PersonPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["subject", slug],
     queryFn: async () => {
-      const { data: subject } = await supabase
-        .from("subjects")
-        .select("*")
-        .eq("slug", slug!)
-        .eq("status", "published")
-        .maybeSingle();
+      const { data: subject } = await (supabase as any)
+        .from("subjects").select("*").eq("slug", slug!).eq("published", true).maybeSingle();
       if (!subject) return null;
-      const { data: incidents } = await supabase
-        .from("incident_subjects")
-        .select("incident:incidents(id, slug, title, summary, occurred_at, city, region, country, verification_status, status)")
+      const { data: rel } = await (supabase as any)
+        .from("subject_incidents")
+        .select("relation_note, incident:incidents(id, slug, title, summary, incident_date, city, state, country, verification_status, published)")
         .eq("subject_id", subject.id);
-      const list = (incidents ?? [])
+      const list = (rel ?? [])
         .map((r: any) => r.incident)
-        .filter((i: any) => i && i.status === "published")
-        .sort((a: any, b: any) => new Date(b.occurred_at || 0).getTime() - new Date(a.occurred_at || 0).getTime());
+        .filter((i: any) => i && i.published)
+        .sort((a: any, b: any) => new Date(b.incident_date || 0).getTime() - new Date(a.incident_date || 0).getTime());
       return { subject, incidents: list };
     },
     enabled: !!slug,
@@ -40,29 +36,25 @@ const PersonPage = () => {
   return (
     <>
       <SEO
-        title={subject.display_name}
-        description={subject.summary ?? `Documented record for ${subject.display_name} in the AntiNationals archive.`}
+        title={subject.display_name || "Unidentified subject"}
+        description={subject.bio_summary ?? `Documented record for ${subject.display_name} in the AntiNationals archive.`}
         path={`/person/${subject.slug}`}
         type="article"
       />
 
       <article className="container-editorial py-12 max-w-4xl">
-        <p className="kicker">Subject profile</p>
+        <p className="kicker">Subject profile · #{String(subject.subject_number).padStart(4, "0")}</p>
         <h1 className="mt-2 font-serif text-4xl lg:text-6xl font-semibold text-foreground leading-tight">
-          {subject.display_name}
+          {subject.display_name || "Unidentified subject"}
         </h1>
-        {subject.aliases && subject.aliases.length > 0 && (
-          <p className="mt-3 text-muted-foreground">
-            <span className="kicker mr-2">Also known as</span>
-            <span className="italic">{subject.aliases.join(" · ")}</span>
+        {(subject.role || subject.organization || subject.department) && (
+          <p className="mt-4 font-serif italic text-muted-foreground">
+            {[subject.role, subject.department, subject.organization].filter(Boolean).join(" · ")}
           </p>
         )}
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <IdentityBadge status={subject.identity_status} />
-          <span className="text-xs text-muted-foreground">
-            {locationLine([subject.city, subject.region, subject.country])}
-          </span>
         </div>
 
         {subject.identity_status !== "verified" && (
@@ -71,9 +63,14 @@ const PersonPage = () => {
           </div>
         )}
 
-        {subject.summary && (
-          <div className="mt-10 prose prose-invert max-w-none prose-p:text-foreground prose-p:leading-relaxed">
-            <p className="font-serif text-xl text-foreground leading-relaxed">{subject.summary}</p>
+        {subject.bio_summary && (
+          <p className="mt-10 font-serif text-xl text-foreground leading-relaxed">{subject.bio_summary}</p>
+        )}
+
+        {subject.identity_notes && (
+          <div className="mt-8 rule-top rule-bottom py-5">
+            <p className="kicker mb-2">Identity notes</p>
+            <p className="text-sm text-foreground">{subject.identity_notes}</p>
           </div>
         )}
 
@@ -93,9 +90,9 @@ const PersonPage = () => {
                 <li key={i.id}>
                   <Link to={`/incident/${i.slug}`} className="group block py-6 hover:bg-secondary/30 -mx-4 px-4 transition-colors">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <time className="font-mono uppercase tracking-widest">{formatDateShort(i.occurred_at)}</time>
+                      <time className="font-mono uppercase tracking-widest">{formatDateShort(i.incident_date)}</time>
                       <span>·</span>
-                      <span>{locationLine([i.city, i.region, i.country])}</span>
+                      <span>{locationLine([i.city, i.state, i.country])}</span>
                     </div>
                     <h3 className="mt-2 font-serif text-2xl text-foreground group-hover:text-accent">{i.title}</h3>
                     {i.summary && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{i.summary}</p>}

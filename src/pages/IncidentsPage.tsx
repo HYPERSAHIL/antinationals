@@ -11,13 +11,13 @@ const IncidentsPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["incidents-all"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("incidents")
-        .select("id, slug, title, summary, occurred_at, city, region, country, verification_status")
-        .eq("status", "published")
-        .order("occurred_at", { ascending: false, nullsFirst: false })
+        .select("id, slug, title, summary, incident_date, city, state, country, verification_status")
+        .eq("published", true)
+        .order("incident_date", { ascending: false, nullsFirst: false })
         .limit(200);
-      return data ?? [];
+      return (data ?? []) as any[];
     },
   });
 
@@ -38,16 +38,16 @@ const IncidentsPage = () => {
             <EmptyState icon={<FileText className="mx-auto h-8 w-8" />} title="No incidents published yet." />
           ) : (
             <ul className="divide-y divide-rule border-t border-b border-rule">
-              {data.map((i: any) => (
+              {data.map((i) => (
                 <li key={i.id}>
                   <Link to={`/incident/${i.slug}`} className="group grid gap-2 py-6 md:grid-cols-[140px_1fr_auto] md:items-start md:gap-6 hover:bg-secondary/30 -mx-4 px-4 transition-colors">
                     <time className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground pt-1">
-                      {formatDateShort(i.occurred_at)}
+                      {formatDateShort(i.incident_date)}
                     </time>
                     <div>
                       <h2 className="font-serif text-2xl leading-snug text-foreground group-hover:text-accent">{i.title}</h2>
                       {i.summary && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{i.summary}</p>}
-                      <p className="mt-2 text-xs text-muted-foreground">{locationLine([i.city, i.region, i.country])}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{locationLine([i.city, i.state, i.country])}</p>
                     </div>
                     <div className="md:pt-1">
                       <VerificationBadge status={i.verification_status} />

@@ -15,14 +15,14 @@ const DirectoryPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["directory", q],
     queryFn: async () => {
-      let query = supabase
+      let query: any = (supabase as any)
         .from("subjects")
-        .select("id, slug, display_name, aliases, city, region, country, identity_status, incident_count:incident_subjects(count)")
-        .eq("status", "published")
-        .order("display_name");
-      if (q) query = query.or(`display_name.ilike.%${q}%,aliases.cs.{${q}}`);
+        .select("id, slug, display_name, role, organization, department, identity_status")
+        .eq("published", true)
+        .order("display_name", { nullsFirst: false });
+      if (q) query = query.ilike("display_name", `%${q}%`);
       const { data } = await query.limit(200);
-      return data ?? [];
+      return (data ?? []) as any[];
     },
   });
 
@@ -48,7 +48,7 @@ const DirectoryPage = () => {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Search by name or alias…"
+            placeholder="Search by name…"
             className="flex-1 bg-transparent py-1 text-sm focus:outline-none"
           />
           <button type="submit" className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground">
@@ -67,32 +67,22 @@ const DirectoryPage = () => {
             />
           ) : (
             <ul className="grid gap-px bg-rule sm:grid-cols-2 lg:grid-cols-3">
-              {data.map((s: any) => (
+              {data.map((s) => (
                 <li key={s.id} className="bg-background">
                   <Link
                     to={`/person/${s.slug}`}
                     className="group block h-full p-5 transition-colors hover:bg-secondary/40"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="font-serif text-xl font-semibold text-foreground group-hover:text-accent truncate">
-                          {s.display_name}
-                        </p>
-                        {s.aliases && s.aliases.length > 0 && (
-                          <p className="mt-0.5 text-xs text-muted-foreground truncate">
-                            aka {s.aliases.slice(0, 2).join(", ")}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      {[s.city, s.region, s.country].filter(Boolean).join(", ") || "Location not recorded"}
+                    <p className="font-serif text-xl font-semibold text-foreground group-hover:text-accent truncate">
+                      {s.display_name || "Unidentified subject"}
                     </p>
-                    <div className="mt-4 flex items-center justify-between">
+                    {(s.role || s.organization) && (
+                      <p className="mt-1 text-xs text-muted-foreground truncate">
+                        {[s.role, s.organization].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
+                    <div className="mt-4">
                       <IdentityBadge status={s.identity_status} />
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                        {s.incident_count?.[0]?.count ?? 0} record{(s.incident_count?.[0]?.count ?? 0) === 1 ? "" : "s"}
-                      </span>
                     </div>
                   </Link>
                 </li>

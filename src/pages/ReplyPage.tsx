@@ -4,29 +4,31 @@ import { SEO } from "@/components/site/SEO";
 import { toast } from "sonner";
 
 const ReplyPage = () => {
-  const [form, setForm] = useState({ incident_slug: "", author_name: "", body: "", contact_email: "" });
+  const [form, setForm] = useState({ incident_slug: "", submitter_name: "", submitter_role: "", response_text: "", submitter_contact: "" });
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.body.trim()) return toast.error("Please provide a response");
+    if (!form.response_text.trim() || !form.submitter_name.trim() || !form.submitter_contact.trim()) {
+      return toast.error("Name, contact and response are required");
+    }
     setBusy(true);
     let incident_id: string | null = null;
     if (form.incident_slug.trim()) {
-      const { data } = await supabase.from("incidents").select("id").eq("slug", form.incident_slug.trim()).maybeSingle();
+      const { data } = await (supabase as any).from("incidents").select("id").eq("slug", form.incident_slug.trim()).maybeSingle();
       incident_id = data?.id ?? null;
     }
-    const { error } = await supabase.from("replies").insert({
+    const { error } = await (supabase as any).from("replies").insert({
       incident_id,
-      author_name: form.author_name || null,
-      body: form.body,
-      contact_email: form.contact_email || null,
-      status: "submitted",
+      submitter_name: form.submitter_name,
+      submitter_role: form.submitter_role || null,
+      submitter_contact: form.submitter_contact,
+      response_text: form.response_text,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Response received. It will be reviewed before publication.");
-    setForm({ incident_slug: "", author_name: "", body: "", contact_email: "" });
+    setForm({ incident_slug: "", submitter_name: "", submitter_role: "", response_text: "", submitter_contact: "" });
   };
 
   return (
@@ -47,19 +49,25 @@ const ReplyPage = () => {
               className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none" />
           </div>
           <div>
-            <label className="kicker">Your name or organization</label>
-            <input value={form.author_name} onChange={(e) => setForm({ ...form, author_name: e.target.value })}
+            <label className="kicker">Your name *</label>
+            <input required value={form.submitter_name} onChange={(e) => setForm({ ...form, submitter_name: e.target.value })}
+              className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none" />
+          </div>
+          <div>
+            <label className="kicker">Role / relationship to subject</label>
+            <input value={form.submitter_role} onChange={(e) => setForm({ ...form, submitter_role: e.target.value })}
+              className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none"
+              placeholder="e.g. Subject, legal representative, press officer" />
+          </div>
+          <div>
+            <label className="kicker">Contact email *</label>
+            <input required type="email" value={form.submitter_contact} onChange={(e) => setForm({ ...form, submitter_contact: e.target.value })}
               className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none" />
           </div>
           <div>
             <label className="kicker">Your response *</label>
-            <textarea required rows={8} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })}
+            <textarea required rows={8} value={form.response_text} onChange={(e) => setForm({ ...form, response_text: e.target.value })}
               className="mt-2 w-full border border-rule bg-transparent p-3 focus:border-foreground focus:outline-none" />
-          </div>
-          <div>
-            <label className="kicker">Contact email (for verification)</label>
-            <input type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
-              className="mt-2 w-full border-b border-rule bg-transparent py-2 focus:border-foreground focus:outline-none" />
           </div>
           <button disabled={busy} className="border border-foreground bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:bg-transparent hover:text-foreground transition-colors disabled:opacity-50">
             {busy ? "Submitting…" : "Submit response"}

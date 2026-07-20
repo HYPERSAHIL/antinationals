@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/site/SEO";
-import { VerificationBadge, IdentityBadge } from "@/components/archive/StatusBadge";
-import { formatDate, formatDateShort, locationLine } from "@/lib/format";
+import { VerificationBadge } from "@/components/archive/StatusBadge";
+import { formatDateShort, locationLine } from "@/lib/format";
 import { ArrowRight, FileText, Users, Camera, ScrollText } from "lucide-react";
 
 const HomePage = () => {
@@ -11,41 +11,35 @@ const HomePage = () => {
     queryKey: ["archive-stats"],
     queryFn: async () => {
       const { data } = await supabase.rpc("get_archive_stats");
-      return data as {
-        total_subjects: number;
-        total_incidents: number;
-        total_evidence: number;
-        total_sources: number;
-        published_incidents: number;
-      } | null;
+      return (data as any) ?? {};
     },
   });
 
   const { data: latest } = useQuery({
     queryKey: ["home-latest-incidents"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("incidents")
-        .select("id, slug, title, summary, occurred_at, city, region, country, verification_status, published_at, subjects:incident_subjects(subject:subjects(display_name, slug))")
-        .eq("status", "published")
-        .order("occurred_at", { ascending: false, nullsFirst: false })
+        .select("id, slug, title, summary, incident_date, city, state, country, verification_status")
+        .eq("published", true)
+        .order("incident_date", { ascending: false, nullsFirst: false })
         .limit(6);
-      return data ?? [];
+      return (data ?? []) as any[];
     },
   });
 
   const { data: featured } = useQuery({
     queryKey: ["home-featured"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("incidents")
-        .select("id, slug, title, summary, occurred_at, city, region, country, verification_status, subjects:incident_subjects(subject:subjects(display_name, slug))")
-        .eq("status", "published")
+        .select("id, slug, title, summary, incident_date, city, state, country, verification_status")
+        .eq("published", true)
         .in("verification_status", ["verified", "corroborated"])
-        .order("published_at", { ascending: false })
+        .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      return data;
+      return data as any;
     },
   });
 
@@ -57,7 +51,6 @@ const HomePage = () => {
         path="/"
       />
 
-      {/* Masthead */}
       <section className="rule-bottom">
         <div className="container-editorial py-16 lg:py-24">
           <p className="kicker">The Archive · Est. {new Date().getFullYear()}</p>
@@ -81,19 +74,18 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Stats strip */}
       <section className="rule-bottom bg-secondary/30">
         <div className="container-editorial py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
             { icon: Users, label: "Subjects documented", value: stats?.total_subjects ?? 0 },
-            { icon: FileText, label: "Incidents published", value: stats?.published_incidents ?? 0 },
+            { icon: FileText, label: "Incidents published", value: stats?.published_incidents ?? stats?.total_incidents ?? 0 },
             { icon: Camera, label: "Evidence records", value: stats?.total_evidence ?? 0 },
             { icon: ScrollText, label: "Cited sources", value: stats?.total_sources ?? 0 },
           ].map((s) => (
             <div key={s.label} className="flex items-start gap-3">
               <s.icon className="mt-1 h-4 w-4 text-muted-foreground" aria-hidden />
               <div>
-                <p className="font-serif text-3xl tabular font-semibold text-foreground">{s.value.toLocaleString()}</p>
+                <p className="font-serif text-3xl tabular font-semibold text-foreground">{Number(s.value).toLocaleString()}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
               </div>
             </div>
@@ -101,10 +93,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured + latest */}
       <section className="container-editorial py-16">
         <div className="grid gap-16 lg:grid-cols-3">
-          {/* Featured */}
           <article className="lg:col-span-2">
             <p className="kicker mb-4">Featured record</p>
             {featured ? (
@@ -113,9 +103,9 @@ const HomePage = () => {
                   <span className="font-serif text-5xl text-muted-foreground/40">§</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <time className="font-mono uppercase tracking-widest">{formatDateShort(featured.occurred_at)}</time>
+                  <time className="font-mono uppercase tracking-widest">{formatDateShort(featured.incident_date)}</time>
                   <span>·</span>
-                  <span>{locationLine([featured.city, featured.region, featured.country])}</span>
+                  <span>{locationLine([featured.city, featured.state, featured.country])}</span>
                 </div>
                 <h2 className="mt-3 font-serif text-3xl lg:text-4xl font-semibold leading-tight text-foreground group-hover:text-accent transition-colors">
                   {featured.title}
@@ -138,22 +128,21 @@ const HomePage = () => {
             )}
           </article>
 
-          {/* Latest list */}
           <aside>
             <p className="kicker mb-4">Latest records</p>
             {latest && latest.length > 0 ? (
               <ul className="divide-y divide-rule border-t border-b border-rule">
-                {latest.map((i: any) => (
+                {latest.map((i) => (
                   <li key={i.id}>
                     <Link to={`/incident/${i.slug}`} className="group block py-4 hover:bg-secondary/40 -mx-2 px-2 transition-colors">
                       <time className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                        {formatDateShort(i.occurred_at)}
+                        {formatDateShort(i.incident_date)}
                       </time>
                       <p className="mt-1 font-serif text-lg leading-snug text-foreground group-hover:text-accent">
                         {i.title}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {locationLine([i.city, i.region, i.country])}
+                        {locationLine([i.city, i.state, i.country])}
                       </p>
                     </Link>
                   </li>
@@ -166,7 +155,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Standards */}
       <section className="rule-top bg-secondary/20">
         <div className="container-editorial py-16 grid gap-12 lg:grid-cols-3">
           {[
