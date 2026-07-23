@@ -1,56 +1,71 @@
 import { Link } from "react-router-dom";
+import { TimestampStrip } from "@/components/ascii/TimestampStrip";
 
-const cols = [
-  { title: "Archive", links: [
-    { to: "/directory", label: "Directory" },
-    { to: "/incidents", label: "Incidents" },
-    { to: "/timeline", label: "Timeline" },
-    { to: "/search", label: "Search" },
-  ]},
-  { title: "Standards", links: [
-    { to: "/methodology", label: "Methodology" },
-    { to: "/corrections", label: "Corrections" },
-    { to: "/right-of-reply", label: "Right of Reply" },
-    { to: "/editorial-policy", label: "Editorial policy" },
-  ]},
-  { title: "About", links: [
-    { to: "/about", label: "About the archive" },
-    { to: "/privacy", label: "Privacy" },
-    { to: "/terms", label: "Terms" },
-  ]},
+const COLS: { title: string; links: { to: string; label: string }[] }[] = [
+  {
+    title: "Archive",
+    links: [
+      { to: "/archive",    label: "Full archive" },
+      { to: "/incidents",  label: "Incidents" },
+      { to: "/subjects",   label: "Subjects" },
+      { to: "/submit",     label: "Submit evidence" },
+    ],
+  },
+  {
+    title: "Standards",
+    links: [
+      { to: "/methodology", label: "Methodology" },
+      { to: "/corrections", label: "Corrections" },
+      { to: "/about",       label: "About" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { to: "/privacy", label: "Privacy" },
+      { to: "/legal",   label: "Legal notice" },
+    ],
+  },
 ];
 
 export const SiteFooter = () => (
-  <footer className="rule-top mt-32 bg-background">
-    <div className="container-editorial py-16">
-      <div className="grid gap-12 lg:grid-cols-4">
-        <div className="lg:col-span-1">
-          <p className="font-serif text-lg font-semibold text-foreground">AntiNationals</p>
-          <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-            An independent public-interest archive preserving evidence, timelines and sourcing on significant public events.
-          </p>
-          <p className="mt-6 border-l-2 border-accent pl-3 font-serif italic text-sm text-foreground">
-            Document the conduct. Preserve the evidence. Let the record speak.
-          </p>
+  <footer className="rule-top mt-16">
+    <div className="container-editorial py-12 grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <div>
+        <p className="font-display text-2xl text-foreground">ANTINATIONALS</p>
+        <p className="mt-2 label-mono text-muted-foreground">PUBLIC EVIDENCE ARCHIVE</p>
+        <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
+          Antinationals documents publicly observable incidents, evidence and
+          subjects through verifiable sources, provenance and open verification
+          history. Records are subject to correction.
+        </p>
+        <div className="mt-5">
+          <TimestampStrip />
         </div>
-        {cols.map((col) => (
-          <div key={col.title}>
-            <p className="kicker mb-3">{col.title}</p>
-            <ul className="space-y-2">
-              {col.links.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </div>
-      <div className="rule-top mt-12 pt-6 flex flex-col sm:flex-row justify-between gap-3 text-xs text-muted-foreground">
-        <p>© {new Date().getFullYear()} AntiNationals. All records cite their sources.</p>
-        <p>Inclusion does not constitute a finding of criminal or civil liability.</p>
+      {COLS.map((c) => (
+        <div key={c.title}>
+          <p className="kicker mb-3">{c.title}</p>
+          <ul className="space-y-2">
+            {c.links.map((l) => (
+              <li key={l.to}>
+                <Link to={l.to} className="text-sm text-foreground/85 hover:text-foreground">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div className="rule-top">
+      <div className="container-editorial py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <p className="label-mono text-muted-foreground">
+          © {new Date().getFullYear()} ANTINATIONALS · PHASE 0 FOUNDATION
+        </p>
+        <p className="label-mono text-muted-foreground">
+          NON-COMMERCIAL · PUBLIC INTEREST · SUBJECT TO CORRECTION
+        </p>
       </div>
     </div>
   </footer>

@@ -1,46 +1,43 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "@/lib/auth";
+import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { TerminalCursor } from "@/components/ascii/TerminalCursor";
 
-const nav = [
-  { to: "/directory", label: "Directory" },
-  { to: "/incidents", label: "Incidents" },
-  { to: "/timeline", label: "Timeline" },
+const NAV = [
+  { to: "/archive",     label: "Archive" },
+  { to: "/incidents",   label: "Incidents" },
+  { to: "/subjects",    label: "Subjects" },
+  { to: "/submit",      label: "Submit" },
   { to: "/methodology", label: "Methodology" },
-  { to: "/about", label: "About" },
+  { to: "/about",       label: "About" },
 ];
 
 export const SiteHeader = () => {
   const [open, setOpen] = useState(false);
-  const [q, setQ] = useState("");
-  const navigate = useNavigate();
-  const { isAdmin } = useAuth();
-
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (q.trim()) navigate(`/search?q=${encodeURIComponent(q.trim())}`);
-  };
 
   return (
-    <header className="sticky top-0 z-40 rule-bottom bg-background/95 backdrop-blur">
-      <div className="container-editorial flex items-center gap-6 py-4">
-        <Link to="/" className="group flex items-baseline gap-2" aria-label="AntiNationals home">
-          <span className="font-serif text-xl font-bold tracking-tight text-foreground">
-            AntiNationals
+    <header className="sticky top-0 z-40 rule-bottom bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="container-editorial flex items-center gap-6 py-3">
+        <Link to="/" className="group flex items-baseline gap-2 min-w-0" aria-label="Antinationals — home">
+          <span className="font-display text-lg font-semibold tracking-tight text-foreground">
+            ANTINATIONALS
           </span>
-          <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
-            Archive
+          <span className="hidden sm:inline label-mono text-muted-foreground">
+            PUBLIC EVIDENCE ARCHIVE
           </span>
         </Link>
 
-        <nav className="ml-4 hidden lg:flex items-center gap-6" aria-label="Primary">
-          {nav.map((item) => (
+        <nav className="ml-auto hidden lg:flex items-center gap-6" aria-label="Primary">
+          {NAV.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `text-sm transition-colors ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`
+                cn(
+                  "text-sm transition-colors",
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                )
               }
             >
               {item.label}
@@ -48,27 +45,19 @@ export const SiteHeader = () => {
           ))}
         </nav>
 
-        <form onSubmit={submitSearch} className="ml-auto hidden md:flex items-center gap-2 rule-bottom border-t-0 border-x-0 border-b border-rule">
-          <Search className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search archive…"
-            className="w-44 bg-transparent py-1 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-0"
-            aria-label="Search archive"
-          />
-        </form>
-
-        {isAdmin && (
-          <Link to="/admin" className="hidden md:inline-block text-[10px] font-mono uppercase tracking-[0.2em] text-accent hover:underline">
-            Admin
-          </Link>
-        )}
+        <Link
+          to="/submit"
+          className="hidden md:inline-flex items-center gap-2 border border-foreground px-3 py-1.5 label-mono text-foreground hover:bg-foreground hover:text-background transition-colors"
+        >
+          Submit evidence
+          <TerminalCursor />
+        </Link>
 
         <button
-          className="lg:hidden ml-auto p-2 -mr-2"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+          type="button"
+          className="lg:hidden ml-auto md:ml-0 p-2 -mr-2 text-foreground"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -76,34 +65,30 @@ export const SiteHeader = () => {
       </div>
 
       {open && (
-        <div className="lg:hidden rule-top">
+        <div className="lg:hidden rule-top bg-background">
           <nav className="container-editorial flex flex-col py-4" aria-label="Mobile">
-            {nav.map((item) => (
+            {NAV.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `py-2 text-sm ${isActive ? "text-foreground" : "text-muted-foreground"}`
+                  cn(
+                    "py-2.5 text-sm rule-bottom last:border-b-0",
+                    isActive ? "text-foreground" : "text-muted-foreground",
+                  )
                 }
               >
                 {item.label}
               </NavLink>
             ))}
-            <form onSubmit={submitSearch} className="mt-3 flex items-center gap-2 border-b border-rule">
-              <Search className="h-4 w-4 text-muted-foreground" aria-hidden />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search archive…"
-                className="w-full bg-transparent py-2 text-sm placeholder:text-muted-foreground focus:outline-none"
-              />
-            </form>
-            {isAdmin && (
-              <Link to="/admin" onClick={() => setOpen(false)} className="mt-3 text-[10px] font-mono uppercase tracking-[0.2em] text-accent">
-                Admin
-              </Link>
-            )}
+            <Link
+              to="/submit"
+              onClick={() => setOpen(false)}
+              className="mt-4 inline-flex items-center justify-center border border-foreground px-3 py-2 label-mono"
+            >
+              Submit evidence
+            </Link>
           </nav>
         </div>
       )}
