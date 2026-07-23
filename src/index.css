@@ -79,10 +79,11 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: 'ss01', 'cv11', 'zero';
-    background-image:
-      linear-gradient(hsl(var(--rule) / 0.35) 1px, transparent 1px);
-    background-size: 100% 96px;
-    background-position: 0 -1px;
+    /*
+     * Phase 1 audit: the site-wide 96px horizontal rule created moiré across
+     * long scrolls. Removed. Use `.newsprint-rules` opt-in below on specific
+     * dossier/timeline/index regions only.
+     */
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
