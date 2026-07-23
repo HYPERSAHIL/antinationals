@@ -5,19 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#080808" />
     <title>Antinationals — Public Evidence Archive</title>
-    <meta name="description" content="Antinationals is a public evidence archive documenting incidents, evidence and subjects through verifiable sources, provenance and open verification history." />
+    <meta name="description" content="Antinationals is a public evidence archive documenting incidents, evidence and subjects through verifiable sources, provenance and open verification history. Records are open to correction." />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Antinationals" />
 
+    <meta property="og:site_name" content="Antinationals" />
     <meta property="og:title" content="Antinationals — Public Evidence Archive" />
-    <meta property="og:description" content="Public evidence archive: incidents, evidence, subjects, sources and verification history." />
+    <meta property="og:description" content="Public evidence archive: incidents, evidence, subjects, sources and verification history. Records are open to correction." />
     <meta property="og:type" content="website" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Antinationals — Public Evidence Archive" />
     <meta name="twitter:description" content="Public evidence archive: incidents, evidence, subjects, sources and verification history." />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Antinationals",
+        "description": "Public evidence archive documenting incidents, evidence and subjects through verifiable sources and open verification history."
+      }
+    </script>
   </head>
 
   <body>
     <div id="root"></div>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; color: #E8E8DF; background: #080808; padding: 2rem;">
+        Antinationals — Public Evidence Archive. This site requires JavaScript.
+        A static, crawlable snapshot is planned for a later phase.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
