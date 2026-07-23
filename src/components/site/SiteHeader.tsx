@@ -40,21 +40,27 @@ export const SiteHeader = () => {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "text-sm transition-colors",
+                  "text-sm transition-colors inline-flex items-baseline gap-1.5",
                   isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                 )
               }
             >
               {item.label}
+              {item.indexing && (
+                <span className="label-mono text-[9px] text-muted-foreground/70 border border-rule px-1 py-[1px]" aria-label="indexing — placeholder route">
+                  IDX
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
 
         <Link
           to="/submit"
-          className="hidden md:inline-flex items-center gap-2 border border-foreground px-3 py-1.5 label-mono text-foreground hover:bg-foreground hover:text-background transition-colors"
+          className="hidden md:inline-flex items-center gap-2 border border-rule px-3 py-1.5 label-mono text-muted-foreground hover:border-foreground hover:text-foreground transition-colors"
+          aria-label="Submit evidence — route indexing"
         >
-          Submit evidence
+          Submit evidence · IDX
           <TerminalCursor />
         </Link>
 
