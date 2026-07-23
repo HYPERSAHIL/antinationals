@@ -3,16 +3,35 @@ import { useEffect, useState } from "react";
 
 interface TimestampStripProps {
   className?: string;
+  /** Left-side prefix. Defaults to REC. */
   prefix?: string;
+  /**
+   * Contextual record metadata. When provided, the strip communicates
+   * archive context (e.g. "ARCHIVE / PUBLIC INDEX", "INC-00031 / CHRONOLOGY")
+   * instead of being a decorative live clock.
+   */
+  context?: string;
+  /** Show live UTC clock. Off by default when `context` is provided. */
+  showClock?: boolean;
 }
 
 /**
- * TimestampStrip — CCTV-style live UTC clock. Updates once per second.
- * Pauses when the tab is hidden. Formatted as: YYYY-MM-DD HH:MM:SS UTC
+ * TimestampStrip — archival record-metadata strip. Can render either:
+ *  - a contextual record label (default when `context` is set), or
+ *  - a subtle live UTC clock (legacy behavior when no context).
+ * Clock pauses when the tab is hidden.
  */
-export const TimestampStrip = ({ className, prefix = "REC" }: TimestampStripProps) => {
-  const [now, setNow] = useState<Date>(() => new Date());
+export const TimestampStrip = ({
+  className,
+  prefix = "REC",
+  context,
+  showClock,
+}: TimestampStripProps) => {
+  const shouldTick = showClock ?? !context;
+  const [now, setNow] = useState<Date | null>(() => (shouldTick ? new Date() : null));
+
   useEffect(() => {
+    if (!shouldTick) return;
     let id: number | undefined;
     const start = () => { id = window.setInterval(() => setNow(new Date()), 1000); };
     const stop = () => { if (id) window.clearInterval(id); id = undefined; };
@@ -20,8 +39,10 @@ export const TimestampStrip = ({ className, prefix = "REC" }: TimestampStripProp
     start();
     document.addEventListener("visibilitychange", onVis);
     return () => { stop(); document.removeEventListener("visibilitychange", onVis); };
-  }, []);
-  const iso = now.toISOString().replace("T", " ").slice(0, 19);
+  }, [shouldTick]);
+
+  const iso = now ? now.toISOString().replace("T", " ").slice(0, 19) + " UTC" : null;
+
   return (
     <div
       className={cn(
@@ -32,10 +53,15 @@ export const TimestampStrip = ({ className, prefix = "REC" }: TimestampStripProp
       aria-live="off"
     >
       <span className="inline-flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 bg-accent motion-safe:animate-pulse" aria-hidden />
+        <span className="h-1.5 w-1.5 bg-accent" aria-hidden />
         <span className="text-accent">{prefix}</span>
       </span>
-      <span className="text-foreground">{iso} UTC</span>
+      {context && <span className="text-foreground">{context}</span>}
+      {iso && (
+        <span className={cn(context ? "text-muted-foreground" : "text-foreground")}>
+          {iso}
+        </span>
+      )}
     </div>
   );
 };
