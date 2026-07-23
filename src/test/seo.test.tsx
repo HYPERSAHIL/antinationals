@@ -4,7 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { SEO } from "@/components/site/SEO";
 
 const renderSEO = (props: Parameters<typeof SEO>[0]) => {
-  const helmetContext: { helmet?: { link: { toString(): string }; meta: { toString(): string } } } = {};
+  const helmetContext: { helmet?: import("react-helmet-async").HelmetServerState } = {};
   render(
     <HelmetProvider context={helmetContext}>
       <SEO {...props} />
