@@ -4,11 +4,16 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TerminalCursor } from "@/components/ascii/TerminalCursor";
 
-const NAV = [
-  { to: "/archive",     label: "Archive" },
-  { to: "/incidents",   label: "Incidents" },
-  { to: "/subjects",    label: "Subjects" },
-  { to: "/submit",      label: "Submit" },
+/**
+ * Phase 0A: routes marked `indexing` are intentionally deferred. The link
+ * remains navigable to a placeholder page but is visually marked so the
+ * preview does not read as production-ready.
+ */
+const NAV: { to: string; label: string; indexing?: boolean }[] = [
+  { to: "/archive",     label: "Archive",     indexing: true },
+  { to: "/incidents",   label: "Incidents",   indexing: true },
+  { to: "/subjects",    label: "Subjects",    indexing: true },
+  { to: "/submit",      label: "Submit",      indexing: true },
   { to: "/methodology", label: "Methodology" },
   { to: "/about",       label: "About" },
 ];
@@ -35,21 +40,27 @@ export const SiteHeader = () => {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "text-sm transition-colors",
+                  "text-sm transition-colors inline-flex items-baseline gap-1.5",
                   isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                 )
               }
             >
               {item.label}
+              {item.indexing && (
+                <span className="label-mono text-[9px] text-muted-foreground/70 border border-rule px-1 py-[1px]" aria-label="indexing — placeholder route">
+                  IDX
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
 
         <Link
           to="/submit"
-          className="hidden md:inline-flex items-center gap-2 border border-foreground px-3 py-1.5 label-mono text-foreground hover:bg-foreground hover:text-background transition-colors"
+          className="hidden md:inline-flex items-center gap-2 border border-rule px-3 py-1.5 label-mono text-muted-foreground hover:border-foreground hover:text-foreground transition-colors"
+          aria-label="Submit evidence — route indexing"
         >
-          Submit evidence
+          Submit evidence · IDX
           <TerminalCursor />
         </Link>
 
@@ -79,7 +90,12 @@ export const SiteHeader = () => {
                   )
                 }
               >
-                {item.label}
+                <span className="inline-flex items-center gap-2">
+                  {item.label}
+                  {item.indexing && (
+                    <span className="label-mono text-[9px] text-muted-foreground/70 border border-rule px-1">IDX</span>
+                  )}
+                </span>
               </NavLink>
             ))}
             <Link
