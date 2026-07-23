@@ -1,19 +1,26 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/site/SEO";
+import { AsciiScene } from "@/components/ascii/AsciiScene";
+import { TerminalLabel } from "@/components/primitives/TerminalLabel";
 
 const NotFound = () => (
   <>
-    <SEO title="Not found" description="Page not found." path="/404" />
-    <div className="container-editorial py-32 max-w-2xl text-center">
-      <p className="kicker">Error 404</p>
-      <h1 className="mt-4 font-serif text-6xl font-semibold text-foreground">Not on file.</h1>
-      <p className="mt-4 text-muted-foreground">
-        The record you requested is not in the archive. It may have been unpublished or the address is mistyped.
-      </p>
-      <Link to="/" className="mt-8 inline-block border border-foreground bg-foreground px-6 py-2.5 text-sm text-background hover:bg-transparent hover:text-foreground transition-colors">
-        Return home
+    <SEO title="Not found" description="Record not found." path="/404" />
+    <section className="container-editorial py-24 text-center">
+      <TerminalLabel tone="accent">HTTP 404 · RECORD NOT FOUND</TerminalLabel>
+      <AsciiScene className="mt-6 mx-auto text-muted-foreground">
+{`  ┌────────────────────────────┐
+  │  ██  NO RECORD  ██         │
+  │  ██  MATCHES    ██         │
+  │  ██  YOUR QUERY ██         │
+  └────────────────────────────┘`}
+      </AsciiScene>
+      <h1 className="mt-8 font-display text-4xl md:text-5xl text-foreground">Nothing on file.</h1>
+      <p className="mt-3 text-muted-foreground">The record you requested does not exist in the archive.</p>
+      <Link to="/" className="mt-6 inline-flex label-mono border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors">
+        Return to index
       </Link>
-    </div>
+    </section>
   </>
 );
 
