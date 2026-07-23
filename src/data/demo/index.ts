@@ -19,12 +19,18 @@ import type {
   DemoSubject,
 } from "./types";
 
+/**
+ * DEMO_STATS — explicitly zeroed. Phase 1B removed realistic-looking
+ * counters (e.g. 142 subjects / 3821 evidence) so they can never
+ * accidentally render as live archive statistics. Real numbers only
+ * ship once a backend is reconnected in Phase 0B+.
+ */
 export const DEMO_STATS: DemoStats = {
-  subjects: 142,
-  evidence: 3821,
-  incidents: 47,
-  sources: 612,
-  archived: 3510,
+  subjects: 0,
+  evidence: 0,
+  incidents: 0,
+  sources: 0,
+  archived: 0,
 };
 
 export const DEMO_SUBJECTS: DemoSubject[] = [

@@ -2,21 +2,34 @@ import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TerminalCursor } from "@/components/ascii/TerminalCursor";
 
 /**
- * Phase 0A: routes marked `indexing` are intentionally deferred. The link
- * remains navigable to a placeholder page but is visually marked so the
- * preview does not read as production-ready.
+ * Phase 0A/1B: every currently-implemented public route is a placeholder
+ * (see _PlaceholderPage). Until Phase 0B ships route implementations,
+ * every nav entry is truthfully marked `indexing` so the preview never
+ * reads as production-ready.
  */
 const NAV: { to: string; label: string; indexing?: boolean }[] = [
   { to: "/archive",     label: "Archive",     indexing: true },
   { to: "/incidents",   label: "Incidents",   indexing: true },
   { to: "/subjects",    label: "Subjects",    indexing: true },
   { to: "/submit",      label: "Submit",      indexing: true },
-  { to: "/methodology", label: "Methodology" },
-  { to: "/about",       label: "About" },
+  { to: "/methodology", label: "Methodology", indexing: true },
+  { to: "/about",       label: "About",       indexing: true },
 ];
+
+/**
+ * IDX chip — small mono marker on placeholder routes. Uses
+ * `text-muted-foreground` (not /70) so 9px text still meets contrast.
+ */
+const IdxChip = () => (
+  <span
+    className="label-mono text-[9px] text-muted-foreground border border-rule px-1 py-[1px]"
+    aria-label="indexing — route not yet implemented"
+  >
+    IDX
+  </span>
+);
 
 export const SiteHeader = () => {
   const [open, setOpen] = useState(false);
@@ -46,22 +59,23 @@ export const SiteHeader = () => {
               }
             >
               {item.label}
-              {item.indexing && (
-                <span className="label-mono text-[9px] text-muted-foreground/70 border border-rule px-1 py-[1px]" aria-label="indexing — placeholder route">
-                  IDX
-                </span>
-              )}
+              {item.indexing && <IdxChip />}
             </NavLink>
           ))}
         </nav>
 
+        {/*
+          Submit is a placeholder route in Phase 0 — keep the CTA visually
+          quiet and truthful. No blinking cursor on the header; motion is
+          reserved for the hero.
+        */}
         <Link
           to="/submit"
           className="hidden md:inline-flex items-center gap-2 border border-rule px-3 py-1.5 label-mono text-muted-foreground hover:border-foreground hover:text-foreground transition-colors"
           aria-label="Submit evidence — route indexing"
         >
-          Submit evidence · IDX
-          <TerminalCursor />
+          Submit evidence
+          <IdxChip />
         </Link>
 
         <button
@@ -92,18 +106,18 @@ export const SiteHeader = () => {
               >
                 <span className="inline-flex items-center gap-2">
                   {item.label}
-                  {item.indexing && (
-                    <span className="label-mono text-[9px] text-muted-foreground/70 border border-rule px-1">IDX</span>
-                  )}
+                  {item.indexing && <IdxChip />}
                 </span>
               </NavLink>
             ))}
             <Link
               to="/submit"
               onClick={() => setOpen(false)}
-              className="mt-4 inline-flex items-center justify-center border border-foreground px-3 py-2 label-mono"
+              className="mt-4 inline-flex items-center justify-center gap-2 border border-rule px-3 py-2 label-mono text-muted-foreground"
+              aria-label="Submit evidence — route indexing"
             >
               Submit evidence
+              <IdxChip />
             </Link>
           </nav>
         </div>

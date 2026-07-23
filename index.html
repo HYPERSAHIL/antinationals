@@ -6,7 +6,13 @@
     <meta name="theme-color" content="#080808" />
     <title>Antinationals — Public Evidence Archive</title>
     <meta name="description" content="Antinationals is a public evidence archive documenting incidents, evidence and subjects through verifiable sources, provenance and open verification history. Records are open to correction." />
-    <meta name="robots" content="index, follow" />
+    <!--
+      Phase 0 pre-launch posture: the foundation deployment must NOT be indexed.
+      Per-route SEO components emit their own robots tag which overrides this
+      at runtime. Flip to "index, follow" (and set VITE_ALLOW_INDEXING=true)
+      only at the explicit launch step.
+    -->
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="author" content="Antinationals" />
 
     <meta property="og:site_name" content="Antinationals" />
@@ -17,6 +23,15 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Antinationals — Public Evidence Archive" />
     <meta name="twitter:description" content="Public evidence archive: incidents, evidence, subjects, sources and verification history." />
+
+    <!--
+      Fonts loaded from <head> with preconnect to avoid the FOUT/wordmark
+      distortion caused by CSS @import. font-display=swap keeps text usable
+      while custom fonts hydrate.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
 
     <script type="application/ld+json">
       {
