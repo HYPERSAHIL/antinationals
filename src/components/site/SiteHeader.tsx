@@ -4,11 +4,16 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TerminalCursor } from "@/components/ascii/TerminalCursor";
 
-const NAV = [
-  { to: "/archive",     label: "Archive" },
-  { to: "/incidents",   label: "Incidents" },
-  { to: "/subjects",    label: "Subjects" },
-  { to: "/submit",      label: "Submit" },
+/**
+ * Phase 0A: routes marked `indexing` are intentionally deferred. The link
+ * remains navigable to a placeholder page but is visually marked so the
+ * preview does not read as production-ready.
+ */
+const NAV: { to: string; label: string; indexing?: boolean }[] = [
+  { to: "/archive",     label: "Archive",     indexing: true },
+  { to: "/incidents",   label: "Incidents",   indexing: true },
+  { to: "/subjects",    label: "Subjects",    indexing: true },
+  { to: "/submit",      label: "Submit",      indexing: true },
   { to: "/methodology", label: "Methodology" },
   { to: "/about",       label: "About" },
 ];
