@@ -96,17 +96,27 @@ const HomePage = () => {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
+            {/*
+              Phase 1B: the primary CTA cannot lead to a finished
+              methodology page while /methodology is still a placeholder.
+              Both CTAs are visually equivalent (border-rule, muted) and
+              carry the IDX marker.
+            */}
             <Link
               to="/methodology"
-              className="inline-flex items-center gap-2 border border-foreground bg-foreground px-4 py-2 label-mono text-background hover:bg-transparent hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-2 border border-rule px-4 py-2 label-mono text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+              aria-label="Read the methodology — route indexing"
             >
               Read the methodology <ArrowRight className="h-3.5 w-3.5" />
+              <span className="label-mono text-[9px] text-muted-foreground border border-rule px-1 py-[1px] ml-1">IDX</span>
             </Link>
             <Link
               to="/about"
               className="inline-flex items-center gap-2 border border-rule px-4 py-2 label-mono text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+              aria-label="About this archive — route indexing"
             >
               About this archive
+              <span className="label-mono text-[9px] text-muted-foreground border border-rule px-1 py-[1px] ml-1">IDX</span>
             </Link>
           </div>
         </div>

@@ -13,3 +13,14 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => {},
   }),
 });
+
+// jsdom does not implement IntersectionObserver. Provide a minimal stub
+// so components that observe visibility can mount in tests.
+class IOStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return []; }
+}
+(globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IOStub;
+(window as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IOStub;

@@ -18,8 +18,11 @@ interface PlaceholderPageProps {
 
 /**
  * PlaceholderPage — shared shell for every public route whose full layout
- * is deferred to Phase 0B. Uses the established design system and makes
- * the deferral explicit rather than pretending to be complete.
+ * is deferred to Phase 0B.
+ *
+ * Placeholder routes are always emitted `noindex` — the Phase 0 preview
+ * must not be indexed as production content, regardless of the site-wide
+ * VITE_ALLOW_INDEXING flag.
  */
 export const PlaceholderPage = ({
   seoTitle,
@@ -33,12 +36,17 @@ export const PlaceholderPage = ({
   phaseLabel = "PHASE 0B",
 }: PlaceholderPageProps) => (
   <>
-    <SEO title={seoTitle} description={seoDescription} path={path} />
+    <SEO
+      title={seoTitle}
+      description={seoDescription}
+      path={path}
+      noindex
+    />
     <PageHeader
       eyebrow={eyebrow}
       title={title}
       description={description}
-      meta={<TerminalLabel tone="muted">{phaseLabel} · SCHEDULED</TerminalLabel>}
+      meta={<TerminalLabel tone="muted">{phaseLabel} · SCHEDULED · IDX</TerminalLabel>}
     />
     <section className="container-editorial py-12">
       <PlaceholderPanel phaseLabel={phaseLabel} title={panelTitle}>

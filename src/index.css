@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* Google Fonts are loaded from index.html <head> with preconnect for
+   font-loading stability (see Phase 1B: font-loading stability). */
 
 @tailwind base;
 @tailwind components;
@@ -18,7 +19,9 @@
     --surface-2: 0 0% 8.5%;               /* raised */
     --foreground: 48 12% 89%;             /* warm off-white #E8E8DF */
     --muted: 0 0% 7%;
-    --muted-foreground: 60 4% 47%;        /* #77776F */
+    /* Phase 1B contrast audit: muted text bumped from 47% → 62% lightness
+       so small mono labels (10px IDX, kickers) pass WCAG AA on #080808. */
+    --muted-foreground: 55 6% 62%;
 
     --card: 0 0% 5%;
     --card-foreground: 48 12% 89%;
@@ -35,23 +38,29 @@
     --rule: 0 0% 14%;
     --rule-strong: 0 0% 22%;
     --input: 0 0% 11%;
-    --ring: 0 55% 42%;
+    /* Focus ring uses the readable red, not the deep decorative red, so
+       keyboard focus is unambiguous on near-black backgrounds. */
+    --ring: 0 72% 62%;
 
-    /* Accents (used sparingly) */
-    --accent: 0 55% 42%;                  /* deep restrained red */
+    /* Accents — two roles:
+       --accent-decorative: deep restrained red for borders / large fills
+       --accent (text):     lighter red readable at small text sizes */
+    --accent-decorative: 0 55% 42%;
+    --accent: 0 72% 62%;
     --accent-foreground: 48 12% 92%;
-    --destructive: 0 55% 42%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 48 12% 92%;
 
-    /* Semantic status (evidence review states) */
-    --status-unidentified: 60 4% 47%;
-    --status-proposed: 40 40% 55%;        /* muted amber */
-    --status-corroborated: 200 20% 60%;
-    --status-verified: 145 22% 48%;       /* restrained green */
-    --status-disputed: 0 55% 48%;
-    --status-retracted: 275 12% 55%;
-    --status-archived: 48 8% 70%;
-    --status-pending: 40 40% 55%;
+    /* Semantic status (evidence review states). Lightness tuned so
+       small mono text meets AA against #080808. */
+    --status-unidentified: 55 6% 62%;
+    --status-proposed: 40 55% 62%;
+    --status-corroborated: 200 30% 68%;
+    --status-verified: 145 28% 58%;
+    --status-disputed: 0 70% 62%;
+    --status-retracted: 275 16% 66%;
+    --status-archived: 48 8% 72%;
+    --status-pending: 40 55% 62%;
 
     --radius: 0.125rem;                   /* almost square — brutalist */
 

@@ -65,6 +65,7 @@ export const AsciiRelationship = ({
   return (
     <AsciiScene
       label={label ?? ariaLines.join(", ")}
+      overflow="scroll"
       className={cn("text-foreground/90", className)}
     >
       {lines.join("\n")}

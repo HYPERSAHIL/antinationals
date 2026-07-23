@@ -40,7 +40,8 @@ export const SiteFooter = () => (
           history. Records are subject to correction.
         </p>
         <div className="mt-5">
-          <TimestampStrip />
+          {/* Static contextual strip — no live clock in the footer. */}
+          <TimestampStrip context="ARCHIVE / FOUNDATION" showClock={false} />
         </div>
       </div>
       {COLS.map((c) => (
