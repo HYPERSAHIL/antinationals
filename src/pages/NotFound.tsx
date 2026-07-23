@@ -5,7 +5,8 @@ import { TerminalLabel } from "@/components/primitives/TerminalLabel";
 
 const NotFound = () => (
   <>
-    <SEO title="Not found" description="Record not found." path="/404" />
+    {/* 404 is always noindex, regardless of site-wide indexing posture. */}
+    <SEO title="Not found" description="Record not found." noindex />
     <section className="container-editorial py-24 text-center">
       <TerminalLabel tone="accent">HTTP 404 · RECORD NOT FOUND</TerminalLabel>
       <AsciiScene className="mt-6 mx-auto text-muted-foreground">

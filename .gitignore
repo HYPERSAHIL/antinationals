@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local env files — never commit real secrets.
+# .env is currently tracked because Lovable injects VITE_SUPABASE_* at
+# build time via the committed file. When switching to per-environment
+# secret injection, untrack .env and rely on .env.example only.
+.env.local
+.env.*.local
