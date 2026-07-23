@@ -7,30 +7,26 @@ import { AuthProvider } from "@/lib/auth";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
 import HomePage from "./pages/HomePage";
-import DirectoryPage from "./pages/DirectoryPage";
-import PersonPage from "./pages/PersonPage";
+import ArchivePage from "./pages/ArchivePage";
 import IncidentsPage from "./pages/IncidentsPage";
-import IncidentPage from "./pages/IncidentPage";
-import TimelinePage from "./pages/TimelinePage";
-import SearchPage from "./pages/SearchPage";
+import IncidentDetailPage from "./pages/IncidentDetailPage";
+import SubjectsPage from "./pages/SubjectsPage";
+import SubjectDetailPage from "./pages/SubjectDetailPage";
+import EvidenceDetailPage from "./pages/EvidenceDetailPage";
+import SubmitPage from "./pages/SubmitPage";
 import MethodologyPage from "./pages/MethodologyPage";
-import AboutPage from "./pages/AboutPage";
 import CorrectionsPage from "./pages/CorrectionsPage";
-import ReplyPage from "./pages/ReplyPage";
-import EditorialPolicyPage from "./pages/EditorialPolicyPage";
+import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
-import TermsPage from "./pages/TermsPage";
-import AuthPage from "./pages/AuthPage";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminSubjects from "./pages/admin/AdminSubjects";
-import AdminSubjectEdit from "./pages/admin/AdminSubjectEdit";
-import AdminIncidents from "./pages/admin/AdminIncidents";
-import AdminIncidentEdit from "./pages/admin/AdminIncidentEdit";
-import AdminEvidence from "./pages/admin/AdminEvidence";
-import AdminCorrections from "./pages/admin/AdminCorrections";
-import AdminReplies from "./pages/admin/AdminReplies";
+import LegalPage from "./pages/LegalPage";
 import NotFound from "./pages/NotFound";
+
+/*
+ * Antinationals — Phase 0A route shell.
+ * Admin routes are intentionally scheduled for Phase 0C and not wired here.
+ * Legacy Supabase-backed pages remain on disk but are decoupled from the
+ * active UI per the Phase 0 constraint.
+ */
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -46,34 +42,20 @@ const App = () => (
           <Routes>
             <Route element={<SiteLayout />}>
               <Route path="/" element={<HomePage />} />
-              <Route path="/directory" element={<DirectoryPage />} />
-              <Route path="/person/:slug" element={<PersonPage />} />
+              <Route path="/archive" element={<ArchivePage />} />
               <Route path="/incidents" element={<IncidentsPage />} />
-              <Route path="/incident/:slug" element={<IncidentPage />} />
-              <Route path="/timeline" element={<TimelinePage />} />
-              <Route path="/search" element={<SearchPage />} />
+              <Route path="/incidents/:slug" element={<IncidentDetailPage />} />
+              <Route path="/subjects" element={<SubjectsPage />} />
+              <Route path="/subjects/:publicId" element={<SubjectDetailPage />} />
+              <Route path="/evidence/:id" element={<EvidenceDetailPage />} />
+              <Route path="/submit" element={<SubmitPage />} />
               <Route path="/methodology" element={<MethodologyPage />} />
-              <Route path="/about" element={<AboutPage />} />
               <Route path="/corrections" element={<CorrectionsPage />} />
-              <Route path="/right-of-reply" element={<ReplyPage />} />
-              <Route path="/editorial-policy" element={<EditorialPolicyPage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/legal" element={<LegalPage />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="subjects" element={<AdminSubjects />} />
-              <Route path="subjects/new" element={<AdminSubjectEdit />} />
-              <Route path="subjects/:id" element={<AdminSubjectEdit />} />
-              <Route path="incidents" element={<AdminIncidents />} />
-              <Route path="incidents/new" element={<AdminIncidentEdit />} />
-              <Route path="incidents/:id" element={<AdminIncidentEdit />} />
-              <Route path="evidence" element={<AdminEvidence />} />
-              <Route path="corrections" element={<AdminCorrections />} />
-              <Route path="replies" element={<AdminReplies />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

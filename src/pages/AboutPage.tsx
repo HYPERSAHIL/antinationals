@@ -1,30 +1,15 @@
-import { SEO } from "@/components/site/SEO";
+import { PlaceholderPage } from "./_PlaceholderPage";
 
 const AboutPage = () => (
-  <>
-    <SEO title="About" description="About AntiNationals." path="/about" />
-    <article className="container-editorial py-16 max-w-3xl">
-      <p className="kicker">About</p>
-      <h1 className="mt-2 font-serif text-4xl lg:text-6xl font-semibold text-foreground leading-tight">
-        A durable record of public conduct.
-      </h1>
-      <div className="prose prose-invert mt-10 max-w-none prose-p:leading-relaxed prose-p:text-foreground prose-headings:font-serif">
-        <p>
-          AntiNationals is an independent public-interest archive. The archive exists to preserve significant public events
-          in a form that resists distortion: primary evidence, transparent sourcing, disclosed verification state, and a
-          permanent history of every change.
-        </p>
-        <p>
-          Records are curated by a small editorial team following the standards described in the <a href="/methodology">methodology</a>.
-          We publish nothing that has not been verified against primary material, and we correct anything that turns out to be wrong.
-        </p>
-        <p>
-          The archive does not accept advertising or sponsorship and is not affiliated with any political party, government
-          or commercial entity.
-        </p>
-      </div>
-    </article>
-  </>
+  <PlaceholderPage
+    seoTitle="About"
+    seoDescription="What Antinationals is, what it is not, and how the archive is structured."
+    path="/about"
+    eyebrow="ABOUT"
+    title="About the archive"
+    description="Antinationals is a public evidence archive. It is not a verdict, not a database of names and not an accusation engine. Evidence exists independently of identity claims."
+    panelTitle="Full about page"
+    panelBody="Phase 0B publishes the full about page — product philosophy, editorial standard, evidence-first data model and how the archive relates to sources, subjects, corrections and readers."
+  />
 );
-
 export default AboutPage;
