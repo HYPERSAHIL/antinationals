@@ -118,6 +118,14 @@
   .rule-right  { border-right: 1px solid hsl(var(--rule)); }
   .rule-strong-bottom { border-bottom: 1px solid hsl(var(--rule-strong)); }
 
+  /* Opt-in newsprint horizontal rule texture. Apply on dossier / metadata /
+     index blocks — never sitewide. */
+  .newsprint-rules {
+    background-image: linear-gradient(hsl(var(--rule) / 0.3) 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-position: 0 -1px;
+  }
+
   .tabular { font-variant-numeric: tabular-nums; }
 
   .kicker {
