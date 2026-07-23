@@ -8,16 +8,24 @@ interface SEOProps {
   type?: "website" | "article";
 }
 
+/**
+ * SEO — runtime-origin aware. Never hardcodes a domain so hosting/domain
+ * can change (Lovable preview, Lovable subdomain, future custom domain)
+ * without code changes.
+ */
 export const SEO = ({ title, description, path, image, type = "website" }: SEOProps) => {
-  const fullTitle = title.includes("AntiNationals") ? title : `${title} — AntiNationals`;
+  const fullTitle = title.includes("Antinationals") ? title : `${title} — Antinationals`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const url = path ? `${origin}${path.startsWith("/") ? path : `/${path}`}` : origin || undefined;
+
   return (
     <Helmet>
       <title>{fullTitle}</title>
       {description && <meta name="description" content={description} />}
-      {path && <link rel="canonical" href={path} />}
+      {url && <link rel="canonical" href={url} />}
       <meta property="og:title" content={fullTitle} />
       {description && <meta property="og:description" content={description} />}
-      {path && <meta property="og:url" content={path} />}
+      {url && <meta property="og:url" content={url} />}
       <meta property="og:type" content={type} />
       {image && <meta property="og:image" content={image} />}
       <meta name="twitter:card" content="summary_large_image" />
