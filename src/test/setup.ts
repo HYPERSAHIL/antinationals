@@ -23,3 +23,4 @@ class IOStub {
   takeRecords() { return []; }
 }
 (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IOStub;
+(window as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IOStub;
