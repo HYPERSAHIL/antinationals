@@ -90,7 +90,12 @@ export const SiteHeader = () => {
                   )
                 }
               >
-                {item.label}
+                <span className="inline-flex items-center gap-2">
+                  {item.label}
+                  {item.indexing && (
+                    <span className="label-mono text-[9px] text-muted-foreground/70 border border-rule px-1">IDX</span>
+                  )}
+                </span>
               </NavLink>
             ))}
             <Link
