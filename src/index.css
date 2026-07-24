@@ -86,8 +86,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, sans-serif;
-    font-feature-settings: 'ss01', 'cv11', 'zero';
+    font-family: 'Source Sans 3', system-ui, sans-serif;
     /*
      * Phase 1 audit: the site-wide 96px horizontal rule created moiré across
      * long scrolls. Removed. Use `.newsprint-rules` opt-in below on specific
@@ -96,10 +95,10 @@
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Fraunces', 'Times New Roman', Georgia, serif;
+    font-family: 'Source Serif 4', 'Times New Roman', Georgia, serif;
     font-optical-sizing: auto;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
   }
 
   .font-mono, code, kbd, samp, pre {

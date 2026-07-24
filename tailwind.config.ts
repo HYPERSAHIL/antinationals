@@ -12,9 +12,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Fraunces", "Georgia", "serif"],
-        serif: ["Fraunces", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Source Serif 4", "Georgia", "serif"],
+        serif: ["Source Serif 4", "Georgia", "serif"],
+        sans: ["Source Sans 3", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
